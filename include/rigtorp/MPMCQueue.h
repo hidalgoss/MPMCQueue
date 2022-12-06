@@ -29,6 +29,7 @@ SOFTWARE.
 #include <memory>
 #include <new> // std::hardware_destructive_interference_size
 #include <stdexcept>
+#include "../hss/hss_iqueue.hpp"
 
 #ifndef __cpp_aligned_new
 #ifdef _WIN32
@@ -109,7 +110,7 @@ template <typename T> struct Slot {
 };
 
 template <typename T, typename Allocator = AlignedAllocator<Slot<T>>>
-class Queue {
+class Queue : hss::IQueue<T> {
 private:
   static_assert(std::is_nothrow_copy_assignable<T>::value ||
                     std::is_nothrow_move_assignable<T>::value,
@@ -120,8 +121,8 @@ private:
 
 public:
   explicit Queue(const size_t capacity,
-                 const Allocator &allocator = Allocator())
-      : capacity_(capacity), allocator_(allocator), head_(0), tail_(0) {
+                 const Allocator &allocator = Allocator()) : hss::IQueue<T>(),
+       capacity_(capacity), allocator_(allocator), head_(0), tail_(0) {
     if (capacity_ < 1) {
       throw std::invalid_argument("capacity < 1");
     }
